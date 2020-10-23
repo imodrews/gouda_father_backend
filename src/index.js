@@ -7,6 +7,11 @@ const app = express();
 const authorsRouter = require("./Routers/Authors/authorsRouter");
 app.use("/api/authors", authorsRouter);
 
+const recipesRouter = require("./Routers/Recipes/recipesRouter");
+app.use("/api/recipes", recipesRouter);
+
+
+
 // Build server
 
 app.set("port", process.env.port || 3000);
