@@ -7,6 +7,9 @@ const app = express();
 const authorsRouter = require("./Routers/Authors/authorsRouter");
 app.use("/api/authors", authorsRouter);
 
+const blogPostRouter = require("./Routers/Blog/blogPostRouter");
+app.use("/api/blogPost", blogPostRouter);
+
 // Build server
 
 app.set("port", process.env.port || 3000);
