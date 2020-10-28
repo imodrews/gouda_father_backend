@@ -1,58 +1,57 @@
 const express = require("express");
+const client = require("../../client");
 const authorsRouter = express.Router();
 
-const authors = [
-	{
-		id: 1,
-		name: "Martin",
-		slug: "martin",
-		title: "WebDev",
-		shortBio: "short Bio test",
-		email: "test",
-		linkedIn: "Test",
-		github: "test",
-		imageurl:
-			"https://images.ctfassets.net/d88iaf7z86dj/6F4EJTcQtzDJ3A3jMPoLp0/41e017032776a01a18323220e98f046f/valentin-ancelin-heisenberg-2.jpg.png",
-	},
-	{
-		id: 2,
-		name: "Alejandra",
-		slug: "alejandra",
-		title: "WebDev",
-		shortBio: "short Bio test",
-		email: "test",
-		linkedIn: "Test",
-		github: "test",
-		imageurl:
-			"https://images.ctfassets.net/d88iaf7z86dj/6F4EJTcQtzDJ3A3jMPoLp0/41e017032776a01a18323220e98f046f/valentin-ancelin-heisenberg-2.jpg.png",
-	},
-	{
-		id: 3,
-		name: "Imogen",
-		slug: "imogen",
-		title: "WebDev",
-		shortBio: "short Bio test",
-		email: "test",
-		linkedIn: "Test",
-		github: "test",
-		imageurl:
-			"https://images.ctfassets.net/d88iaf7z86dj/6F4EJTcQtzDJ3A3jMPoLp0/41e017032776a01a18323220e98f046f/valentin-ancelin-heisenberg-2.jpg.png",
-	},
-];
-
 authorsRouter.get("/", (req, res, next) => {
-	res.send(authors);
+	client
+		.query("SELECT * FROM authors")
+		.then((data) => res.json(data.rows))
+		.catch((err) => console.log(err));
 });
 
 authorsRouter.get("/:slug", (req, res, next) => {
-	const actualAuthor = authors.find(
-		(author) => author.slug === req.params.slug
-	);
-	if (actualAuthor) {
-		res.status(200).send(actualAuthor);
-	} else {
-		res.status(404).send("MIEEEEEEEEEEP: WRONG!!!");
-	}
+	const { slug } = req.params;
+	client
+		.query("SELECT * FROM authors WHERE slug=$1", [slug])
+		.then((data) => res.json(data.rows))
+		.catch((err) => console.log(err));
+});
+
+authorsRouter.post("/", (req, res) => {
+	const {
+		name,
+		slug,
+		title,
+		shortBio,
+		email,
+		linkedIn,
+		github,
+		imageurl,
+	} = req.body;
+	const text =
+		"INSERT INTO authors(name, slug, title, shortBio, email, linkedIn, github, imageurl) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *";
+	const values = [
+		name,
+		slug,
+		title,
+		shortBio,
+		email,
+		linkedIn,
+		github,
+		imageurl,
+	];
+	client
+		.query(text, values)
+		.then((data) => res.json(data.rows))
+		.catch((err) => console.log(err));
+});
+
+authorsRouter.delete("/:slug", (req, res) => {
+	const { slug } = req.params;
+	client
+		.query("DELETE FROM authors WHERE slug=$1 RETURNING *", [slug])
+		.then((data) => res.json(data.rows))
+		.catch((err) => console.log(err));
 });
 
 module.exports = authorsRouter;
