@@ -1,58 +1,59 @@
 const express = require("express");
+const client = require("../../client");
 const recipesRouter = express.Router();
 
-const recipes = [
-	{
-		id: 1,
-		slug: "brie-mine",
-		title: "Brie Mine",
-		shortDescription: "To brie or not to brie, that is the question. ",
-		quickFacts: "short",
-		ingredients: "short text, list",
-		description: "rich text",
-		author: "reference",
-		featureImage: "media",
-		tags: "short text",
-	},
-	{
-		id: 2,
-		slug: "macncheese",
-		title: "Mac n Cheese",
-		shortDescription: "Cheesy puns mac me so happy. ",
-		quickFacts: "test2",
-		ingredients: "short text, list",
-		description: "rich text",
-		author: "reference",
-		featureImage: "media",
-		tags: "short text",
-	},
-	{
-		id: 3,
-		slug: "nachoaveragenacho",
-		title: "Nacho Average Nacho",
-		shortDescription: "How to tell when someone is nacho friend.",
-		quickFacts: "test3",
-		ingredients: "short text, list",
-		description: "rich text",
-		author: "reference",
-		featureImage: "media",
-		tags: "short text",
-	},
-];
-
 recipesRouter.get("/", (req, res, next) => {
-	res.send(recipes);
+	client
+		.query("SELECT * FROM recipes")
+		.then((data) => res.json(data.rows))
+		.catch((err) => console.log(err));
 });
 
 recipesRouter.get("/:slug", (req, res, next) => {
-	const actualRecipe = recipes.find(
-		(recipe) => recipe.slug === req.params.slug
-	);
-	if (actualRecipe) {
-		res.status(200).send(actualRecipe);
-	} else {
-		res.status(404).send("You're wrong, gurl!");
-	}
+	const { slug } = req.params;
+	client
+		.query("SELECT * FROM recipes WHERE slug=$1", [slug])
+		.then((data) => res.json(data.rows))
+		.catch((err) => console.log(err));
+});
+
+recipesRouter.post("/", (req, res) => {
+	const {
+		slug, 
+		title, 
+		shortDescription, 
+		quickFacts, 
+		ingredients, 
+		description, 
+		author, 
+		imageURL, 
+		tags,
+	} = req.body;
+	const text =
+		"INSERT INTO authors(slug, title, shortDescription, quickFacts, ingredients, description, author, imageURL, tags) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *";
+	const values = [
+		slug, 
+		title, 
+		shortDescription, 
+		quickFacts, 
+		ingredients, 
+		description, 
+		author, 
+		imageURL, 
+		tags,
+	];
+	client
+		.query(text, values)
+		.then((data) => res.json(data.rows))
+		.catch((err) => console.log(err));
+});
+
+recipesRouter.delete("/:slug", (req, res) => {
+	const { slug } = req.params;
+	client
+		.query("DELETE FROM authors WHERE slug=$1 RETURNING *", [slug])
+		.then((data) => res.json(data.rows))
+		.catch((err) => console.log(err));
 });
 
 module.exports = recipesRouter;
