@@ -21,25 +21,25 @@ recipesRouter.post("/", (req, res) => {
 	const {
 		slug, 
 		title, 
-		shortDescription, 
-		quickFacts, 
+		shortdescription, 
+		quickfacts, 
 		ingredients, 
 		description, 
 		author, 
-		imageURL, 
+		imageurl, 
 		tags,
 	} = req.body;
 	const text =
-		"INSERT INTO authors(slug, title, shortDescription, quickFacts, ingredients, description, author, imageURL, tags) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *";
+		"INSERT INTO recipes(slug, title, shortdescription, quickfacts, ingredients, description, author, imageurl, tags) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *";
 	const values = [
 		slug, 
 		title, 
-		shortDescription, 
-		quickFacts, 
+		shortdescription, 
+		quickfacts, 
 		ingredients, 
 		description, 
 		author, 
-		imageURL, 
+		imageurl, 
 		tags,
 	];
 	client
@@ -51,7 +51,7 @@ recipesRouter.post("/", (req, res) => {
 recipesRouter.delete("/:slug", (req, res) => {
 	const { slug } = req.params;
 	client
-		.query("DELETE FROM authors WHERE slug=$1 RETURNING *", [slug])
+		.query("DELETE FROM recipes WHERE slug=$1 RETURNING *", [slug])
 		.then((data) => res.json(data.rows))
 		.catch((err) => console.log(err));
 });
